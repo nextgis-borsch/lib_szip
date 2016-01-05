@@ -14,16 +14,13 @@ set (SZIP_SRCS
     encoding.c
 )
 
-set (SZIP_HDRS
-    ricehdf.h
-)
-
 set (SZIP_PUBLIC_HEADERS
+    ricehdf.h
     szip_adpt.h
     szlib.h
 )
 
-add_library (${SZIP_LIB_TARGET} ${LIB_TYPE} ${SZIP_SRCS} ${SZIP_HDRS} ${SZIP_PUBLIC_HEADERS})
+add_library (${SZIP_LIB_TARGET} ${LIB_TYPE} ${SZIP_SRCS} ${SZIP_PUBLIC_HEADERS})
 set_target_properties(${SZIP_LIB_TARGET} PROPERTIES DEFINE_SYMBOL ${SZIP_LIB_CORENAME}_EXPORTS)
 target_link_libraries (${SZIP_LIB_TARGET} ${LINK_LIBS})
 set (SZIP_LIBRARIES_TO_EXPORT ${SZIP_LIB_TARGET} PARENT_SCOPE)
@@ -40,14 +37,14 @@ endif ()
 
 #-- Apple Specific install_name for libraries
 if (APPLE)
-option (SZIP_BUILD_WITH_INSTALL_NAME "Build with library install_name set to the installation path" OFF)
-if (SZIP_BUILD_WITH_INSTALL_NAME)
-  set_target_properties(SZIP_LIB_TARGET PROPERTIES
-      LINK_FLAGS "-current_version ${SZIP_PACKAGE_VERSION} -compatibility_version ${SZIP_PACKAGE_VERSION}"
-      INSTALL_NAME_DIR "${INSTALL_LIB_DIR}"
-      BUILD_WITH_INSTALL_RPATH ${SZIP_BUILD_WITH_INSTALL_NAME}
-  )
-endif ()
+    option (SZIP_BUILD_WITH_INSTALL_NAME "Build with library install_name set to the installation path" OFF)
+    if (SZIP_BUILD_WITH_INSTALL_NAME)
+      set_target_properties(SZIP_LIB_TARGET PROPERTIES
+          LINK_FLAGS "-current_version ${SZIP_PACKAGE_VERSION} -compatibility_version ${SZIP_PACKAGE_VERSION}"
+          INSTALL_NAME_DIR "${INSTALL_LIB_DIR}"
+          BUILD_WITH_INSTALL_RPATH ${SZIP_BUILD_WITH_INSTALL_NAME}
+      )
+    endif ()
 endif ()
 
 #-----------------------------------------------------------------------------
