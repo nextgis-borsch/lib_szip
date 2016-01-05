@@ -127,7 +127,7 @@ endif ()
 # Add file(s) to CMake Install
 #-----------------------------------------------------------------------------
 if (NOT SZIP_INSTALL_NO_DEVELOPMENT)
-  INSTALL (
+  install (
       FILES ${CMAKE_BINARY_DIR}/SZconfig.h
       DESTINATION ${INSTALL_INC_DIR}
       COMPONENT headers
