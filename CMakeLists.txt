@@ -104,6 +104,7 @@ endif ()
 if (WIN32)
   add_definitions (-DBIND_TO_CURRENT_VCLIBS_VERSION=1)
   add_definitions (-D_CRT_SECURE_NO_WARNINGS)
+  add_definitions (-DWINDOWS95)
 endif ()
 
 if (MSVC)
