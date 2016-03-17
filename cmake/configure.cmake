@@ -31,6 +31,10 @@ include (CheckFunctionExists)
 include (TestBigEndian)
 include (CheckTypeSize)
 
+if(CMAKE_GENERATOR_TOOLSET MATCHES "*xp")
+    add_definitions(-D_WIN32_WINNT=0x0501)
+endif()
+
 check_include_files ("ctype.h" HAVE_CTYPE_H)
 check_include_files ("stdlib.h" HAVE_STDLIB_H)
 
