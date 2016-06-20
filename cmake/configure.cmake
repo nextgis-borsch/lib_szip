@@ -82,6 +82,6 @@ if (BUILD_SHARED_LIBS)
     set (SZIP_BUILT_AS_DYNAMIC_LIB 1)
 endif()
 
-configure_file(${CMAKE_MODULE_PATH}/SZconfig.h.cmakein ${CMAKE_CURRENT_BINARY_DIR}/SZconfig.h IMMEDIATE @ONLY)
+configure_file(${CMAKE_SOURCE_DIR}/cmake/SZconfig.h.cmakein ${CMAKE_CURRENT_BINARY_DIR}/SZconfig.h IMMEDIATE @ONLY)
 add_definitions (-DHAVE_CONFIG_H)
 

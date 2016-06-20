@@ -73,7 +73,7 @@ set(VERSION "${SZIP_VERS_MAJOR}.${SZIP_VERS_MINOR}")
 report_version(${PROJECT_NAME} "${VERSION}")  
 
 include(configure)
-configure_file(${CMAKE_MODULE_PATH}/cmake_uninstall.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake IMMEDIATE @ONLY)
+configure_file(${CMAKE_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake IMMEDIATE @ONLY)
 
 #-----------------------------------------------------------------------------
 # Targets built within this project are exported at Install time for use
