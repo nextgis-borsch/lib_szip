@@ -176,17 +176,10 @@ endif ()
 # Export all exported targets to the build tree for use by parent project
 #-----------------------------------------------------------------------------
 if (NOT SZIP_EXTERNALLY_CONFIGURED)
-    if(BUILD_SHARED_LIBS)
-        export (
-            TARGETS ${SZIP_LIBRARIES_TO_EXPORT} ${SZIP_LIB_DEPENDENCIES}
-            FILE ${SZIP_LIB_CORENAME}-exports.cmake
-        )
-    else()
-        export (
-            TARGETS ${SZIP_LIBRARIES_TO_EXPORT} ${SZIP_LIB_DEPENDENCIES}
-            FILE ${SZIP_LIB_CORENAME}static-exports.cmake
-        )    
-    endif()    
+    export (
+        TARGETS ${SZIP_LIBRARIES_TO_EXPORT} ${SZIP_LIB_DEPENDENCIES}
+        FILE ${SZIP_LIB_CORENAME}-exports.cmake
+    )
 endif ()
 
 add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
