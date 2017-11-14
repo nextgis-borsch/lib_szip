@@ -3,7 +3,7 @@
 # Purpose:  CMake build scripts
 # Author:   Dmitry Baryshnikov, dmitry.baryshnikov@nexgis.com
 ################################################################################
-# Copyright (C) 2015, NextGIS <info@nextgis.com>
+# Copyright (C) 2015,2017, NextGIS <info@nextgis.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -25,19 +25,36 @@
 ################################################################################
 
 cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
-PROJECT (szip C)
+PROJECT (szip)
 
-# some init settings
+# Some init settings
 set(CMAKE_COLOR_MAKEFILE ON)
-# set path to additional CMake modules
+# Set path to additional CMake modules
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
-include(GNUInstallDirs)
+if(OSX_FRAMEWORK AND (BUILD_SHARED_LIBS OR BUILD_STATIC_LIBS))
+  message(FATAL_ERROR "Only OSX_FRAMEWORK key or any or both BUILD_SHARED_LIBS
+                       and BUILD_STATIC_LIBS keys are permitted")
+endif()
 
-set(INSTALL_BIN_DIR ${CMAKE_INSTALL_BINDIR} CACHE INTERNAL "Installation directory for executables" FORCE)
-set(INSTALL_LIB_DIR ${CMAKE_INSTALL_LIBDIR} CACHE INTERNAL "Installation directory for libraries" FORCE)
-set(INSTALL_INC_DIR ${CMAKE_INSTALL_INCLUDEDIR} CACHE INTERNAL "Installation directory for headers" FORCE)
-set(INSTALL_SHARE_DIR ${CMAKE_INSTALL_DATADIR} CACHE INTERNAL "Installation directory for share files" FORCE)
+if(OSX_FRAMEWORK)
+  set(INSTALL_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin" CACHE INTERNAL "Installation directory for executables" FORCE)
+  set(INSTALL_LIB_DIR "${CMAKE_INSTALL_PREFIX}/Library/Frameworks" CACHE INTERNAL "Installation directory for libraries" FORCE)
+  set(INSTALL_INC_DIR "${INSTALL_LIB_DIR}/${PROJECT_NAME}.framework/Headers" CACHE INTERNAL "Installation directory for headers" FORCE)
+  set(SKIP_INSTALL_HEADERS ON)
+  set(SKIP_INSTALL_FILES ON)
+  set(SKIP_INSTALL_EXPORT ON)
+  set(CMAKE_MACOSX_RPATH ON)
+  set(SKIP_INSTALL_DOCS ON)
+  set(SZIP_EXTERNALLY_CONFIGURED ON)
+else()
+    include(GNUInstallDirs)
+
+    set(INSTALL_BIN_DIR ${CMAKE_INSTALL_BINDIR} CACHE INTERNAL "Installation directory for executables" FORCE)
+    set(INSTALL_LIB_DIR ${CMAKE_INSTALL_LIBDIR} CACHE INTERNAL "Installation directory for libraries" FORCE)
+    set(INSTALL_INC_DIR ${CMAKE_INSTALL_INCLUDEDIR} CACHE INTERNAL "Installation directory for headers" FORCE)
+    set(INSTALL_SHARE_DIR ${CMAKE_INSTALL_DATADIR} CACHE INTERNAL "Installation directory for share files" FORCE)
+endif()
 
 #-----------------------------------------------------------------------------
 # Define some CMake variables for use later in the project
@@ -69,15 +86,17 @@ set(SZLIB_FULL_VERSION)
 check_version(SZIP_VERS_MAJOR SZIP_VERS_MINOR SZLIB_FULL_VERSION)
 
 set(VERSION "${SZIP_VERS_MAJOR}.${SZIP_VERS_MINOR}")
-
-report_version(${PROJECT_NAME} "${VERSION}")  
+if(OSX_FRAMEWORK)
+    set(FRAMEWORK_VERSION "${SZIP_VERS_MAJOR}")
+endif()
+report_version(${PROJECT_NAME} "${VERSION}")
 
 include(configure)
 configure_file(${CMAKE_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake IMMEDIATE @ONLY)
 
 #-----------------------------------------------------------------------------
 # Targets built within this project are exported at Install time for use
-# by other projects using FindSZIP. 
+# by other projects using FindSZIP.
 #-----------------------------------------------------------------------------
 if (NOT SZIP_EXPORTED_TARGETS)
   set (SZIP_EXPORTED_TARGETS "szip-targets")
@@ -86,9 +105,7 @@ endif ()
 #-----------------------------------------------------------------------------
 # Option to Build Shared/Static libs, default is static
 #-----------------------------------------------------------------------------
-set (LIB_TYPE STATIC)
-if (BUILD_SHARED_LIBS)
-  set (LIB_TYPE SHARED)
+if (BUILD_SHARED_LIBS OR OSX_FRAMEWORK)
   add_definitions (-DSZ_BUILT_AS_DYNAMIC_LIB)
 else ()
   if (NOT WIN32)
@@ -152,7 +169,7 @@ endif ()
 #-----------------------------------------------------------------------------
 # Add file(s) to CMake Install
 #-----------------------------------------------------------------------------
-if (NOT SZIP_INSTALL_NO_DEVELOPMENT)
+if(NOT SKIP_INSTALL_HEADERS AND NOT SKIP_INSTALL_ALL)
   install (
       FILES ${CMAKE_BINARY_DIR}/SZconfig.h
       DESTINATION ${INSTALL_INC_DIR}
@@ -187,7 +204,7 @@ add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_D
 #-----------------------------------------------------------------------------
 # Add Document File(s) to CMake Install
 #-----------------------------------------------------------------------------
-if (NOT SZIP_EXTERNALLY_CONFIGURED)
+if(NOT SKIP_INSTALL_DOCS AND NOT SKIP_INSTALL_ALL)
   install (
       FILES
           ${CMAKE_SOURCE_DIR}/COPYING
@@ -196,9 +213,31 @@ if (NOT SZIP_EXTERNALLY_CONFIGURED)
           ${CMAKE_SOURCE_DIR}/INSTALL
           ${CMAKE_SOURCE_DIR}/RELEASE.txt
       DESTINATION ${INSTALL_SHARE_DIR}
-      COMPONENT hdfdocuments
+      COMPONENT documents
   )
 endif ()
+
+if (REGISTER_PACKAGE)
+    export(TARGETS ${SZIP_LIBRARIES_TO_EXPORT} FILE ${PROJECT_NAME}-exports.cmake)
+
+    set(EXPORT_PACKAGE_NAME ${PROJECT_NAME})
+    string(TOUPPER ${EXPORT_PACKAGE_NAME} EXPORT_PACKAGE_NAME_UPPER)
+    set(EXPORT_PACKAGE_LIB_NAME ${PROJECT_NAME})
+
+    export(PACKAGE ${EXPORT_PACKAGE_NAME})
+
+    include(CMakePackageConfigHelpers)
+    configure_package_config_file(
+        ${CMAKE_SOURCE_DIR}/cmake/PackageConfig.cmake.in
+        ${CMAKE_CURRENT_BINARY_DIR}/${EXPORT_PACKAGE_NAME}Config.cmake
+        INSTALL_DESTINATION ${CMAKE_CURRENT_BINARY_DIR} )
+    write_basic_package_version_file(
+        ${CMAKE_CURRENT_BINARY_DIR}/${EXPORT_PACKAGE_NAME}ConfigVersion.cmake
+        VERSION ${VERSION}
+        COMPATIBILITY AnyNewerVersion )
+else()
+    export(TARGETS ${SZIP_LIBRARIES_TO_EXPORT} FILE ${PROJECT_NAME}-exports.cmake EXPORT_LINK_INTERFACE_LIBRARIES)
+endif()
 
 #-----------------------------------------------------------------------------
 # Set the cpack variables
@@ -223,31 +262,30 @@ if (NOT SZIP_EXTERNALLY_CONFIGURED)
     set (CPACK_RPM_COMPONENT_INSTALL ON)
   endif ()
   set (CPACK_MONOLITHIC_INSTALL ON)
-  
+
   include (InstallRequiredSystemLibraries)
 
   set (CPACK_INSTALL_CMAKE_PROJECTS "${CMAKE_BINARY_DIR};SZIP;ALL;/")
-  
+
   include (CPack)
 
-  cpack_add_component (libraries 
+  cpack_add_component (libraries
       DISPLAY_NAME "SZIP Libraries"
       GROUP Runtime
   )
-  cpack_add_component (headers 
-      DISPLAY_NAME "SZIP Headers" 
+  cpack_add_component (headers
+      DISPLAY_NAME "SZIP Headers"
       DEPENDS libraries
       GROUP Development
   )
-  cpack_add_component (hdfdocuments 
+  cpack_add_component (hdfdocuments
       DISPLAY_NAME "SZIP Documents"
       GROUP Documents
   )
-  cpack_add_component (configinstall 
-      DISPLAY_NAME "SZIP CMake files" 
+  cpack_add_component (configinstall
+      DISPLAY_NAME "SZIP CMake files"
       DEPENDS libraries
       GROUP Development
   )
-  
+
 endif ()
-  

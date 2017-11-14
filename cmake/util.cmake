@@ -29,19 +29,23 @@ function(check_version major minor full)
     #-----------------------------------------------------------------------------
     # parse the full version number from szlib.h and include in SZLIB_FULL_VERSION
     #-----------------------------------------------------------------------------
-    file (READ ${SZIP_SRC_DIR}/szlib.h _szlib_h_contents)
+    set(VERSION_FILE ${SZIP_SRC_DIR}/szlib.h)
+    file (READ ${VERSION_FILE} _szlib_h_contents)
     string (REGEX REPLACE ".*#define[ \t]+SZLIB_VERSION[ \t]+\"([0-9]*.[0-9]*)\".*"
         "\\1" SZLIB_FULL_VERSION ${_szlib_h_contents})
     string (REGEX REPLACE ".*#define[ \t]+SZLIB_VERSION[ \t]+\"([0-9]*).*$"
         "\\1" SZIP_VERS_MAJOR ${_szlib_h_contents})
     string (REGEX REPLACE ".*#define[ \t]+SZLIB_VERSION[ \t]+\"[0-9]*.([0-9]*)\".*$"
         "\\1" SZIP_VERS_MINOR ${_szlib_h_contents})
-    
-    
+
+
     set(${major} ${SZIP_VERS_MAJOR} PARENT_SCOPE)
     set(${minor} ${SZIP_VERS_MINOR} PARENT_SCOPE)
     set(${full} ${SZLIB_FULL_VERSION} PARENT_SCOPE)
 
+    # Store version string in file for installer needs
+    file(TIMESTAMP ${VERSION_FILE} VERSION_DATETIME "%Y-%m-%d %H:%M:%S" UTC)
+    file(WRITE ${CMAKE_BINARY_DIR}/version.str "${SZIP_VERS_MAJOR}.${SZIP_VERS_MINOR}\n${VERSION_DATETIME}")
 endfunction(check_version)
 
 
@@ -50,7 +54,7 @@ function(report_version name ver)
     string(ASCII 27 Esc)
     set(BoldYellow  "${Esc}[1;33m")
     set(ColourReset "${Esc}[m")
-        
+
     message(STATUS "${BoldYellow}${name} version ${ver}${ColourReset}")
-    
-endfunction()  
+
+endfunction()
