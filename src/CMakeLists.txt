@@ -1,24 +1,27 @@
+cmake_minimum_required (VERSION 2.8.12)
+project (SZIP_SRC C)
 
 #-----------------------------------------------------------------------------
 # Setup include Directories
 #-----------------------------------------------------------------------------
-include_directories (${SZIP_SRC_DIR})
-include_directories (${CMAKE_BINARY_DIR})
+INCLUDE_DIRECTORIES (${SZIP_SRC_SOURCE_DIR})
+INCLUDE_DIRECTORIES (${CMAKE_BINARY_DIR})
 
 #-----------------------------------------------------------------------------
 # Define szip Library
 #-----------------------------------------------------------------------------
 set (SZIP_SRCS
-    rice.c
-    sz_api.c
-    encoding.c
+    ${SZIP_SRC_SOURCE_DIR}/rice.c
+    ${SZIP_SRC_SOURCE_DIR}/sz_api.c
+    ${SZIP_SRC_SOURCE_DIR}/encoding.c
 )
 
 set (SZIP_PUBLIC_HEADERS
-    ricehdf.h
-    szip_adpt.h
-    szlib.h
+    ${SZIP_SRC_SOURCE_DIR}/ricehdf.h
+    ${SZIP_SRC_SOURCE_DIR}/szip_adpt.h
+    ${SZIP_SRC_SOURCE_DIR}/szlib.h
 )
+
 
 set(LIB_NAME ${SZIP_LIB_TARGET})
 if(BUILD_SHARED_LIBS)
@@ -27,6 +30,9 @@ if(BUILD_SHARED_LIBS)
         VERSION ${LIBSZIP_VERSION}
         SOVERSION ${LIBSZIP_VERSION}
         DEFINE_SYMBOL ${SZIP_LIB_CORENAME}_EXPORTS
+        COMPILE_DEFINITIONS "SZ_BUILT_AS_DYNAMIC_LIB"
+        PUBLIC_HEADER "${SZIP_PUBLIC_HEADERS}"
+        INTERFACE_COMPILE_DEFINITIONS SZ_BUILT_AS_DYNAMIC_LIB=1
     )
 elseif(OSX_FRAMEWORK)
     add_library(${LIB_NAME} SHARED ${SZIP_SRCS} ${SZIP_PUBLIC_HEADERS})
@@ -45,35 +51,20 @@ else()
     add_library(${LIB_NAME} STATIC ${SZIP_SRCS} ${SZIP_PUBLIC_HEADERS})
 endif()
 
-target_link_libraries (${SZIP_LIB_TARGET} ${LINK_LIBS})
-set (SZIP_LIBRARIES_TO_EXPORT ${SZIP_LIB_TARGET} PARENT_SCOPE)
-
-#-----------------------------------------------------------------------------
-# Add file(s) to CMake Install
-#-----------------------------------------------------------------------------
-if(NOT SKIP_INSTALL_HEADERS AND NOT SKIP_INSTALL_ALL)
-    install (
-    FILES
-        ${SZIP_PUBLIC_HEADERS}
-    DESTINATION
-        ${INSTALL_INC_DIR}
-    COMPONENT
-        headers
-    )
-endif()
+target_link_libraries (${SZIP_LIB_TARGET} PRIVATE ${LINK_LIBS})
+set_global_variable (SZIP_LIBRARIES_TO_EXPORT ${SZIP_LIB_TARGET})
 
 #-----------------------------------------------------------------------------
 # Add Target(s) to CMake Install for import into other projects
 #-----------------------------------------------------------------------------
 if (SZIP_EXPORTED_TARGETS)
   install (
-      TARGETS
-          ${SZIP_LIB_TARGET}
-      EXPORT
-          ${SZIP_EXPORTED_TARGETS}
-      RUNTIME DESTINATION ${INSTALL_BIN_DIR} COMPONENT applications
-      ARCHIVE DESTINATION ${INSTALL_LIB_DIR} COMPONENT libraries
-      LIBRARY DESTINATION ${INSTALL_LIB_DIR} COMPONENT libraries
-      FRAMEWORK DESTINATION ${INSTALL_LIB_DIR}
+        TARGETS ${SZIP_LIB_TARGET}
+        EXPORT ${PACKAGE_UPPER_NAME}Targets
+        RUNTIME DESTINATION ${INSTALL_BIN_DIR}
+        LIBRARY DESTINATION ${INSTALL_LIB_DIR}
+        ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
+        INCLUDES DESTINATION ${INSTALL_INC_DIR}
+        FRAMEWORK DESTINATION ${INSTALL_LIB_DIR}
   )
 endif ()

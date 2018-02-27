@@ -1,0 +1,5 @@
+.,.,,"COPYING,HISTORY.txt,INSTALL,README,RELEASE.txt"
+bin,bin,skip,
+config/cmake,cmake,,"SZconfig.h.in,SZIPMacros.cmake,c"
+src,src,,"c,h"
+test,test,,"c,h"
