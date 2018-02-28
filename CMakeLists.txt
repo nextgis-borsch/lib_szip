@@ -49,6 +49,7 @@ if(OSX_FRAMEWORK)
     set(INSTALL_BIN_DIR "bin" CACHE INTERNAL "Installation directory for executables" FORCE)
     set(INSTALL_LIB_DIR "Library/Frameworks" CACHE INTERNAL "Installation directory for libraries" FORCE)
     set(INSTALL_INC_DIR ${INSTALL_LIB_DIR}/${PROJECT_NAME}.framework/Headers CACHE INTERNAL "Installation directory for headers" FORCE)
+    set(INSTALL_CMAKECONF_DIR ${INSTALL_LIB_DIR}/${PROJECT_NAME}.framework/Resources/CMake CACHE INTERNAL "Installation directory for cmake config files" FORCE)
     set(SKIP_INSTALL_HEADERS ON)
     set(SKIP_INSTALL_FILES ON)
     set(SKIP_INSTALL_EXPORT ON)
@@ -94,7 +95,6 @@ check_version(SZIP_VERS_MAJOR SZIP_VERS_MINOR SZIP_VERS_RELEASE SZLIB_FULL_VERSI
 set(VERSION "${SZIP_VERS_MAJOR}.${SZIP_VERS_MINOR}.${SZIP_VERS_RELEASE}")
 if(OSX_FRAMEWORK)
     set(FRAMEWORK_VERSION "${SZIP_VERS_MAJOR}")
-    set(INSTALL_CMAKECONF_DIR ${INSTALL_LIB_DIR}/${PROJECT_NAME}.framework/Versions/${FRAMEWORK_VERSION}/Resources/CMake CACHE INTERNAL "Installation directory for cmake config files" FORCE)
 endif()
 report_version(${PROJECT_NAME} "${VERSION}")
 
@@ -298,20 +298,6 @@ if(REGISTER_PACKAGE)
     # Export the package for use from the build-tree
     # (this registers the build-tree with a global CMake-registry)
     export(PACKAGE ${PACKAGE_UPPER_NAME})
-endif()
-
-# Create the <Package>Config.cmake file
-configure_file(cmake/PackageConfig.cmake.in
-    ${PROJECT_BINARY_DIR}/${PACKAGE_UPPER_NAME}Config.cmake @ONLY)
-
-if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL)
-    # Install the <Package>Config.cmake
-    install(FILES
-      ${PROJECT_BINARY_DIR}/${PACKAGE_UPPER_NAME}Config.cmake
-      DESTINATION ${INSTALL_CMAKECONF_DIR} COMPONENT dev)
-
-    # Install the export set for use with the install-tree
-    install(EXPORT ${PACKAGE_UPPER_NAME}Targets DESTINATION ${INSTALL_CMAKECONF_DIR} COMPONENT dev)
 endif()
 
 # Archiving ====================================================================
