@@ -54,6 +54,14 @@ endif()
 target_link_libraries (${SZIP_LIB_TARGET} PRIVATE ${LINK_LIBS})
 set_global_variable (SZIP_LIBRARIES_TO_EXPORT ${SZIP_LIB_TARGET})
 
+if (NOT SKIP_INSTALL_HEADERS AND NOT SKIP_INSTALL_ALL)
+  install (
+      FILES ${SZIP_PUBLIC_HEADERS}
+      DESTINATION ${INSTALL_INC_DIR}
+      COMPONENT headers
+  )
+endif ()
+
 #-----------------------------------------------------------------------------
 # Add Target(s) to CMake Install for import into other projects
 #-----------------------------------------------------------------------------

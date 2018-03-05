@@ -242,7 +242,7 @@ configure_file (${SZIP_RESOURCES_DIR}/SZconfig.h.in ${PROJECT_BINARY_DIR}/SZconf
 #-----------------------------------------------------------------------------
 # Add file(s) to CMake Install
 #-----------------------------------------------------------------------------
-if (NOT SKIP_INSTALL_HEADERS)
+if (NOT SKIP_INSTALL_HEADERS AND NOT SKIP_INSTALL_ALL)
   install (
       FILES ${PROJECT_BINARY_DIR}/SZconfig.h
       DESTINATION ${INSTALL_INC_DIR}
