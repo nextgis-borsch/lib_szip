@@ -3,7 +3,7 @@
 # Purpose:  CMake build scripts
 # Author:   Dmitry Baryshnikov, dmitry.baryshnikov@nexgis.com
 ################################################################################
-# Copyright (C) 2015, NextGIS <info@nextgis.com>
+# Copyright (C) 2015-2018, NextGIS <info@nextgis.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -64,18 +64,13 @@ function(report_version name ver)
 
 endfunction()
 
-
 function(get_cpack_filename ver name)
     get_compiler_version(COMPILER)
     if(BUILD_STATIC_LIBS)
         set(STATIC_PREFIX "static-")
     endif()
 
-    if(BUILD_SHARED_LIBS OR OSX_FRAMEWORK)
-        set(${name} ${PROJECT_NAME}-${STATIC_PREFIX}${ver}-${COMPILER} PARENT_SCOPE)
-    else()
-        set(${name} ${PROJECT_NAME}-${STATIC_PREFIX}${ver}-STATIC-${COMPILER} PARENT_SCOPE)
-    endif()
+    set(${name} ${PROJECT_NAME}-${STATIC_PREFIX}${ver}-${COMPILER} PARENT_SCOPE)
 endfunction()
 
 function(get_compiler_version ver)
