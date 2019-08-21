@@ -89,6 +89,9 @@ set (SZIP_LIB_NAME              "${SZIP_EXTERNAL_LIB_PREFIX}${SZIP_LIB_CORENAME}
 SET (SZIP_LIB_TARGET              ${SZIP_LIB_CORENAME})
 SET (SZIP_TEST_LIB_TARGET         ${SZIP_TEST_LIB_CORENAME})
 
+set(PACKAGE_NAME ${PROJECT_NAME})
+string(TOUPPER ${PACKAGE_NAME} PACKAGE_UPPER_NAME)
+
 include(util)
 check_version(SZIP_VERS_MAJOR SZIP_VERS_MINOR SZIP_VERS_RELEASE SZLIB_FULL_VERSION)
 
@@ -217,8 +220,7 @@ endif ()
 # All libs/tests/examples need the main include directories
 #-----------------------------------------------------------------------------
 include_directories (${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}/src ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-set(PACKAGE_NAME ${PROJECT_NAME})
-string(TOUPPER ${PACKAGE_NAME} PACKAGE_UPPER_NAME)
+
 
 add_subdirectory (${CMAKE_SOURCE_DIR}/src ${CMAKE_BINARY_DIR}/src)
 
