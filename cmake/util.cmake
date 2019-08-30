@@ -1,5 +1,5 @@
 ################################################################################
-# Project:  Lib TIFF
+# Project:  Lib szip
 # Purpose:  CMake build scripts
 # Author:   Dmitry Baryshnikov, dmitry.baryshnikov@nexgis.com
 ################################################################################
@@ -64,6 +64,25 @@ function(report_version name ver)
 
 endfunction()
 
+
+# macro to find packages on the host OS
+macro( find_exthost_package )
+    if(CMAKE_CROSSCOMPILING)
+        set( CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER )
+        set( CMAKE_FIND_ROOT_PATH_MODE_LIBRARY NEVER )
+        set( CMAKE_FIND_ROOT_PATH_MODE_INCLUDE NEVER )
+
+        find_package( ${ARGN} )
+
+        set( CMAKE_FIND_ROOT_PATH_MODE_PROGRAM ONLY )
+        set( CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY )
+        set( CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY )
+    else()
+        find_package( ${ARGN} )
+    endif()
+endmacro()
+
+
 # macro to find programs on the host OS
 macro( find_exthost_program )
     if(CMAKE_CROSSCOMPILING)
@@ -103,7 +122,7 @@ function(get_cpack_filename ver name)
 
     get_prefix(STATIC_PREFIX ${BUILD_STATIC_LIBS})
 
-    set(${name} ${PROJECT_NAME}-${ver}-${STATIC_PREFIX}${COMPILER} PARENT_SCOPE)
+    set(${name} ${PACKAGE_NAME}-${ver}-${STATIC_PREFIX}${COMPILER} PARENT_SCOPE)
 endfunction()
 
 function(get_compiler_version ver)
