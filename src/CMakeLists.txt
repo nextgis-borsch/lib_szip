@@ -79,12 +79,12 @@ endif ()
 
 # Create the <Package>Config.cmake file
 configure_file(${CMAKE_SOURCE_DIR}/cmake/PackageConfig.cmake.in
-    ${PROJECT_BINARY_DIR}/${PACKAGE_UPPER_NAME}Config.cmake @ONLY)
+    ${CMAKE_BINARY_DIR}/${PACKAGE_UPPER_NAME}Config.cmake @ONLY)
 
 if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL)
     # Install the <Package>Config.cmake
     install(FILES
-      ${PROJECT_BINARY_DIR}/${PACKAGE_UPPER_NAME}Config.cmake
+      ${CMAKE_BINARY_DIR}/${PACKAGE_UPPER_NAME}Config.cmake
       DESTINATION ${INSTALL_CMAKECONF_DIR} COMPONENT dev)
 
     # Install the export set for use with the install-tree
